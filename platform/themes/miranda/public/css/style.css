@@ -1460,25 +1460,28 @@ header.sticky-header.sticky-active.header-two .header-info .item a {
     }
 }
 .banner-area .banner-content .title {
-    font-size: 120px;
+    /* font-size: 120px; */
     font-weight: 400;
     letter-spacing: -6px;
     line-height: 1.1;
     padding-bottom: 26px;
+    border: 3px solid yellow;
 }
 @media only screen and (min-width: 1200px) and (max-width: 1599px) {
     .banner-area .banner-content .title {
-        font-size: 100px;
+        font-size: 65px;
     }
 }
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
     .banner-area .banner-content .title {
         font-size: 36px;
+        /* border: 3px solid red; */
     }
 }
 @media only screen and (min-width: 576px) and (max-width: 767px) {
     .banner-area .banner-content .title {
         font-size: 72px;
+        /* border: 3px solid red; */
     }
 }
 @media (max-width: 575px) {
