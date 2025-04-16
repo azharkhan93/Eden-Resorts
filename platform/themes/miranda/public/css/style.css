@@ -1240,6 +1240,7 @@ header.sticky-header.sticky-active.header-two .header-info .item a {
     position: relative;
     width: 100%;
     z-index: 99;
+    overflow-y: auto;
 }
 .offcanvas-wrapper .offcanvas-widget a.offcanvas-close {
     color: var(--color-1st);
