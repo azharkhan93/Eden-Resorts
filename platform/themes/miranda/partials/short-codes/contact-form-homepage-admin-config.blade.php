@@ -1,5 +1,5 @@
-<section>
-    <div class="mb-3">
+<section style="border: 3px solid red;">
+    <div class="mb-3" style="border: 3px solid red;">
         <label class="form-label">{{ __('Title') }}</label>
         <input
             class="form-control"

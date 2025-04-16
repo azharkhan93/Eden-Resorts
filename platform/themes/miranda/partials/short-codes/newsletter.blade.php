@@ -9,7 +9,7 @@
                             alt="{{ $shortcode->title }}"
                         >
                     </div>
-                    <p>
+                    <p style="font-size: 30px;">
                         {{ $shortcode->description }}
                     </p>
                     <form

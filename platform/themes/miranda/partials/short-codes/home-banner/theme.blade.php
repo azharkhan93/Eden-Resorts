@@ -6,8 +6,9 @@
                     <div class="col-lg-8">
                         <div class="banner-content text-start">
                             <!-- Title and Description remain intact -->
-                            <span class="promo-tag" data-animation="fadeInDown" data-delay=".6s">{{ theme_option('slider-title-' . $i) }}</span>
                             <h1 class="title" data-animation="fadeInLeft" data-delay=".9s">{!! theme_option('slider-description-' . $i) !!}</h1>
+                            <span class="promo-tag" data-animation="fadeInDown" data-delay=".6s">{{ theme_option('slider-title-' . $i) }}</span>
+                            
                             <!-- Removed the slider buttons section -->
                             <ul>
                                 <li data-animation="fadeInUp" data-delay="1.1s">
