@@ -3015,7 +3015,7 @@ header.sticky-header.sticky-active.header-two .header-info .item a {
     width: 26px;
 }
 .room-details .deatils-box {
-    font-family: var(--tertiary-font), sans-serif;
+    /* font-family: var(--tertiary-font), sans-serif; */
 }
 .room-details .deatils-box .title-wrap {
     align-items: center;
