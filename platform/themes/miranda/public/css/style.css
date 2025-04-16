@@ -1473,7 +1473,7 @@ header.sticky-header.sticky-active.header-two .header-info .item a {
 }
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
     .banner-area .banner-content .title {
-        font-size: 86px;
+        font-size: 36px;
     }
 }
 @media only screen and (min-width: 576px) and (max-width: 767px) {
