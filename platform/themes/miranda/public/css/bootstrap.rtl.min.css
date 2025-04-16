@@ -258,7 +258,7 @@ button {
 [type="submit"]:not(:disabled),
 button:not(:disabled) {
     cursor: pointer;
-    display: none;
+    display: none  !important;
 }
 [type="button"]::-moz-focus-inner,
 [type="reset"]::-moz-focus-inner,
