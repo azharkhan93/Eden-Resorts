@@ -20,9 +20,9 @@
 @foreach ($tabs as $tag)
     <div class="single-banner d-flex align-items-center justify-content-center">
         <div class="container">
-            <div class="row justify-content-center">
+            <div class="row justify-content-start">
                 <div class="col-lg-8">
-                    <div class="banner-content text-center">
+                    <!-- <div class="banner-content text-center">
                         <span class="promo-tag" data-animation="fadeInDown" data-delay=".6s">{{ $tag['title'] }}</span>
                         <h1 class="title" data-animation="fadeInLeft" data-delay=".9s">{!! $tag['description'] !!}</h1>
                         <ul>
@@ -37,11 +37,17 @@
                                 </li>
                             @endif
                         </ul>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
-        <div class="banner-bg" style="background-image: url({{ RvMedia::getImageUrl($tag['image']) }});"></div>
+        <!-- <div class="banner-bg">
+    <video autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+        <source src="{{ asset('bg-hero.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div> -->
+        <!-- <div class="banner-bg" style="background-image: url({{ RvMedia::getImageUrl($tag['image']) }});"></div> -->
         <div class="banner-overly"></div>
     </div>
 @endforeach
