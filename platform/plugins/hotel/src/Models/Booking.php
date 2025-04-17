@@ -57,6 +57,11 @@ class Booking extends BaseModel
         return $this->belongsToMany(Service::class, 'ht_booking_services', 'booking_id', 'service_id');
     }
 
+    public function foods(): BelongsToMany
+    {
+        return $this->belongsToMany(Food::class, 'ht_booking_foods', 'booking_id', 'food_id');
+    }
+
     public function address(): HasOne
     {
         return $this->hasOne(BookingAddress::class, 'booking_id')->withDefault();

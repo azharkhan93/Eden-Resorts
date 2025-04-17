@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static int getMinimumNumberOfGuests()
  * @method static int getMaximumNumberOfGuests()
  * @method static string getBookingNumber(string|int $id)
+ * @method static array getBookingDateFormatOptions()
+ * @method static bool isEnableFoodOrder()
  *
  * @see \Botble\Hotel\Supports\HotelSupport
  */

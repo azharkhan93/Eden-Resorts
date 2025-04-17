@@ -706,20 +706,20 @@ class MediaManagement {
     // Scroll get more media
     scrollGetMore() {
         let _self = this
+        let $mediaList = $('.rv-media-main .rv-media-items')
 
-        $('.rv-media-main .rv-media-items').on('wheel', function (e) {
-            if (e.originalEvent.deltaY > 0) { // Scroll down only
-                let $target = $(e.currentTarget)
-                let scrollHeight = $target[0].scrollHeight
-                let scrollTop = $target.scrollTop()
-                let innerHeight = $target.innerHeight()
+        // Handle both mouse wheel and touch scroll events
+        $mediaList.on('wheel scroll', function (e) {
+            let $target = $(e.currentTarget)
+            let scrollHeight = $target[0].scrollHeight
+            let scrollTop = $target.scrollTop()
+            let innerHeight = $target.innerHeight()
 
-                let threshold = $target.closest('.media-modal').length > 0 ? 450 : 150
-                let loadMore = scrollTop + innerHeight >= scrollHeight - threshold
+            let threshold = $target.closest('.media-modal').length > 0 ? 450 : 150
+            let loadMore = scrollTop + innerHeight >= scrollHeight - threshold
 
-                if (loadMore && RV_MEDIA_CONFIG.pagination?.has_more) {
-                    _self.MediaService.getMedia(false, false, true)
-                }
+            if (loadMore && RV_MEDIA_CONFIG.pagination?.has_more) {
+                _self.MediaService.getMedia(false, false, true)
             }
         })
     }

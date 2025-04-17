@@ -422,4 +422,62 @@
         src="{{ asset('vendor/core/core/js-validation/js/js-validation.js') }}"
     ></script>
     {!! JsValidator::formRequest(\Botble\Hotel\Http\Requests\CheckoutRequest::class, '.payment-checkout-form') !!}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.payment-checkout-form');
+            
+            // Load saved customer data if exists
+            try {
+                const savedCustomerData = localStorage.getItem('hotel_booking_customer_data');
+                if (savedCustomerData) {
+                    const data = JSON.parse(savedCustomerData);
+                    Object.keys(data).forEach(key => {
+                        const input = form.querySelector(`[name="${key}"]`);
+                        if (input && !input.value) {
+                            input.value = data[key];
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading saved customer data:', error);
+            }
+
+            // Save customer data when form fields change
+            const formFields = form.querySelectorAll('input, select, textarea');
+            formFields.forEach(field => {
+                field.addEventListener('change', function() {
+                    saveCustomerData();
+                });
+            });
+
+            // Function to save customer data
+            function saveCustomerData() {
+                try {
+                    const customerData = {
+                        first_name: form.querySelector('[name="first_name"]')?.value || '',
+                        last_name: form.querySelector('[name="last_name"]')?.value || '',
+                        email: form.querySelector('[name="email"]')?.value || '',
+                        phone: form.querySelector('[name="phone"]')?.value || '',
+                        address: form.querySelector('[name="address"]')?.value || '',
+                        city: form.querySelector('[name="city"]')?.value || '',
+                        country: form.querySelector('[name="country"]')?.value || '',
+                        zip: form.querySelector('[name="zip"]')?.value || '',
+                        arrival_time: form.querySelector('[name="arrival_time"]')?.value || '',
+                        requests: form.querySelector('[name="requests"]')?.value || ''
+                    };
+                    
+                    localStorage.setItem('hotel_booking_customer_data', JSON.stringify(customerData));
+                    console.log('Customer data saved successfully');
+                } catch (error) {
+                    console.error('Error saving customer data:', error);
+                }
+            }
+
+            // Save data before form submission
+            form.addEventListener('submit', function(e) {
+                saveCustomerData();
+            });
+        });
+    </script>
 @endif

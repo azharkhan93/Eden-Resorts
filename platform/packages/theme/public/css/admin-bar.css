@@ -1,9 +1,9 @@
 body.show-admin-bar {
-     margin-top: 40px !important; 
+    /* margin-top: 40px !important; */
     position: relative;
 }
 #admin_bar {
-    /* display: none;  */
+    display: none;
     background-color: #333;
     direction: ltr !important;
     font-family:
@@ -74,7 +74,6 @@ body.show-admin-bar {
     color: #ccc;
 }
 #admin_bar .admin-navbar-nav > li > a:hover {
-    /* #222 */
     color: #fff;
 }
 #admin_bar .admin-navbar-nav .admin-bar-dropdown > a:after {

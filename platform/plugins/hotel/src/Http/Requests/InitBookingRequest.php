@@ -14,8 +14,8 @@ class InitBookingRequest extends Request
 
         $rules = [
             'room_id' => ['required', 'exists:ht_rooms,id'],
-            'start_date' => ['required', 'string', 'date', 'date_format:' . $dateFormat, 'after_or_equal:today'],
-            'end_date' => ['required', 'string', 'date', 'date_format:' . $dateFormat, 'after_or_equal:start_date'],
+            'start_date' => ['required', 'string', 'date_format:' . $dateFormat, 'after_or_equal:today'],
+            'end_date' => ['required', 'string', 'date_format:' . $dateFormat, 'after_or_equal:start_date'],
             'adults' => [
                 'required',
                 'integer',

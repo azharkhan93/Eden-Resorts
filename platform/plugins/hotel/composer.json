@@ -3,6 +3,6 @@
     "description": "Hotel",
     "type": "package",
     "require": {
-        "khaled.alshamaa/ar-php": "^6.3"
+        "khaled.alshamaa/ar-php": "^7.0"
     }
 }

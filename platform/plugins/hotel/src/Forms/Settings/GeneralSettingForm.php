@@ -5,10 +5,13 @@ namespace Botble\Hotel\Forms\Settings;
 use Botble\Base\Forms\FieldOptions\CheckboxFieldOption;
 use Botble\Base\Forms\FieldOptions\LabelFieldOption;
 use Botble\Base\Forms\FieldOptions\NumberFieldOption;
+use Botble\Base\Forms\FieldOptions\OnOffFieldOption;
+use Botble\Base\Forms\FieldOptions\SelectFieldOption;
 use Botble\Base\Forms\FieldOptions\TextFieldOption;
 use Botble\Base\Forms\Fields\LabelField;
 use Botble\Base\Forms\Fields\NumberField;
 use Botble\Base\Forms\Fields\OnOffCheckboxField;
+use Botble\Base\Forms\Fields\SelectField;
 use Botble\Base\Forms\Fields\TextField;
 use Botble\Hotel\Facades\HotelHelper;
 use Botble\Hotel\Http\Requests\Settings\GeneralSettingRequest;
@@ -37,6 +40,13 @@ class GeneralSettingForm extends SettingForm
                 $maximumNumberOfGuests = HotelHelper::getMaximumNumberOfGuests();
 
                 return $form
+                    ->add(
+                        'hotel_booking_enabled_food_order',
+                        OnOffCheckboxField::class,
+                        OnOffFieldOption::make()
+                            ->value(HotelHelper::isEnableFoodOrder())
+                            ->label(trans('plugins/hotel::settings.general.enable_food_order'))
+                    )
                     ->add(
                         'hotel_minimum_number_of_guests',
                         NumberField::class,
@@ -96,6 +106,14 @@ class GeneralSettingForm extends SettingForm
                     ->label(trans('plugins/hotel::settings.general.booking_number_format.end_with'))
                     ->value(setting('hotel_booking_number_suffix'))
             )
-            ->addCloseFieldset('booking_number_format_section');
+            ->addCloseFieldset('booking_number_format_section')
+            ->add(
+                'hotel_booking_date_format',
+                SelectField::class,
+                SelectFieldOption::make()
+                    ->choices(HotelHelper::getBookingDateFormatOptions())
+                    ->selected(setting('hotel_booking_date_format'))
+                    ->label(trans('plugins/hotel::settings.general.booking_date_format'))
+            );
     }
 }

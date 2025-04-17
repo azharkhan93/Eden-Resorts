@@ -22,8 +22,8 @@ class Authenticate extends BaseAuthenticate
                 $flag = $route->getName();
             }
 
-            $flag = preg_replace('/.create.store$/', '.create', $flag);
-            $flag = preg_replace('/.edit.update$/', '.edit', $flag);
+            $flag = preg_replace('/.store$/', '.create', $flag);
+            $flag = preg_replace('/.update$/', '.edit', $flag);
 
             if ($flag && ! $request->user()->hasAnyPermission((array) $flag)) {
                 if ($request->expectsJson()) {

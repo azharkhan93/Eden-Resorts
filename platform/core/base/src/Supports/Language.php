@@ -429,7 +429,7 @@ class Language
                     'code' => $locale,
                     'name' => $locale,
                     'flag' => $locale,
-                    'is_rtl' => $languages[$locale][3] === 'rtl',
+                    'is_rtl' => Arr::get($languages, "$locale.3") === 'rtl',
                 ];
             }
         }

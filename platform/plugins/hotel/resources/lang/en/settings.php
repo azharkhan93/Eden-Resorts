@@ -28,6 +28,9 @@ return [
             'start_with' => 'Starting Number',
             'end_with' => 'Ending Number',
         ],
+        'booking_date_format' => 'Booking Date Format',
+        'default_system_date_format' => 'Default system date format',
+        'enable_food_order' => 'Enable food order?',
     ],
     'review' => [
         'title' => 'Reviews',

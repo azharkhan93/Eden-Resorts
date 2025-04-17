@@ -38,6 +38,11 @@
             }
         }
     }
+
+    .multi-check-list-wrapper label, div[data-bb-toggle=tree-checkboxes] ul li label {
+        margin-inline-start: 1px;
+        margin-top: 1px;
+    }
 }
 
 .tagify__tag {

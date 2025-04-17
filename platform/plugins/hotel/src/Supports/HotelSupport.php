@@ -92,6 +92,15 @@ class HotelSupport
             'page' => Arr::get($request, 'page', 1),
             'per_page' => Arr::get($request, 'per_page', 10),
             'room_category_id' => Arr::get($request, 'room_category_id'),
+            'min_price' => Arr::get($request, 'min_price'),
+            'max_price' => Arr::get($request, 'max_price'),
+            'number_of_beds' => Arr::get($request, 'number_of_beds'),
+            'min_size' => Arr::get($request, 'min_size'),
+            'max_size' => Arr::get($request, 'max_size'),
+            'amenities' => Arr::get($request, 'amenities'),
+            'is_featured' => Arr::get($request, 'is_featured'),
+            'sort_by' => Arr::get($request, 'sort_by'),
+            'sort_direction' => Arr::get($request, 'sort_direction', 'asc'),
         ];
 
         $dateFormat = HotelHelper::getDateFormat();
@@ -114,6 +123,16 @@ class HotelSupport
                 'start_date' => ['nullable', 'string', 'date', 'date_format:' . $dateFormat, 'after_or_equal:today'],
                 'end_date' => ['nullable', 'string', 'date', 'date_format:' . $dateFormat, 'after_or_equal:start_date'],
                 'room_id' => ['nullable', 'integer', 'exists:hotel_rooms,id'],
+                'min_price' => ['nullable', 'numeric', 'min:0'],
+                'max_price' => ['nullable', 'numeric', 'min:0', 'gte:min_price'],
+                'number_of_beds' => ['nullable', 'integer', 'min:1'],
+                'min_size' => ['nullable', 'numeric', 'min:0'],
+                'max_size' => ['nullable', 'numeric', 'min:0', 'gte:min_size'],
+                'amenities' => ['nullable', 'array'],
+                'amenities.*' => ['integer', 'exists:ht_amenities,id'],
+                'is_featured' => ['nullable', 'boolean'],
+                'sort_by' => ['nullable', 'string', 'in:price,name,created_at,number_of_beds,size'],
+                'sort_direction' => ['nullable', 'string', 'in:asc,desc'],
             ]);
 
             return $validator->valid();
@@ -188,12 +207,12 @@ class HotelSupport
 
     public function getDateFormat(): string
     {
-        return setting('hotel_date_format', config('plugins.hotel.hotel.date_format')) ?: 'd-m-Y';
+        return (setting('hotel_booking_date_format') ?: config('plugins.hotel.hotel.date_format')) ?: 'd-m-Y';
     }
 
     public function getBookingFormDateFormat(): string
     {
-        return setting('hotel_booking_form_date_format', config('plugins.hotel.hotel.booking_form_date_format')) ?: 'dd-mm-yyyy';
+        return ($this->getDateFormatDatepicker() ?: config('plugins.hotel.hotel.booking_form_date_format')) ?: 'dd-mm-yyyy';
     }
 
     public function dateFromRequest(string $date): Carbon|false
@@ -256,5 +275,71 @@ class HotelSupport
             (int) config('plugins.hotel.hotel.default_number_start_number') + $id,
             $suffix
         );
+    }
+
+    public function getBookingDateFormatTemplates(): array
+    {
+        return [
+            [
+                'carbon' => 'd-m-Y',
+                'datepicker' => 'dd-mm-yyyy',
+            ],
+            [
+                'carbon' => 'm-d-Y',
+                'datepicker' => 'mm-dd-yyyy',
+            ],
+            [
+                'carbon' => 'Y-m-d',
+                'datepicker' => 'yyyy-mm-dd',
+            ],
+            [
+                'carbon' => 'd/m/Y',
+                'datepicker' => 'dd/mm/yyyy',
+            ],
+            [
+                'carbon' => 'm/d/Y',
+                'datepicker' => 'mm/dd/yyyy',
+            ],
+            [
+                'carbon' => 'Y/m/d',
+                'datepicker' => 'yyyy/mm/dd',
+            ],
+        ];
+    }
+
+    public function getBookingDateFormatOptions(): array
+    {
+        $templates = $this->getBookingDateFormatTemplates();
+
+        $options = [];
+
+        $now = Carbon::now();
+
+        $options[''] = trans('plugins/hotel::settings.general.default_system_date_format');
+
+        foreach ($templates as $template) {
+            $options[$template['carbon']] = $template['carbon'] . ' (' . $now->format($template['carbon']) . ')';
+        }
+
+        return $options;
+    }
+
+    public function getDateFormatDatepicker(): ?string
+    {
+        $dateFormat = $this->getDateFormat();
+        $templates = $this->getBookingDateFormatTemplates();
+
+        foreach ($templates as $template) {
+            if ($template['carbon'] == $dateFormat) {
+                return $template['datepicker'];
+            }
+        }
+
+        return null;
+    }
+
+    public function isEnableFoodOrder(): bool
+    {
+        return (bool) $this->getSetting('hotel_booking_enabled_food_order', false);
     }
 }

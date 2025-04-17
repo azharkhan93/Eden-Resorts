@@ -192,6 +192,39 @@
         <br>
     @endif
 
+    @if ($booking->foods->count())
+        <h4>{{ __('Foods') }}</h4>
+        <x-core::table>
+            <x-core::table.header>
+                <x-core::table.header.cell>
+                    {{ __('Name') }}
+                </x-core::table.header.cell>
+                <x-core::table.header.cell class="text-center">
+                    {{ __('Price') }}
+                </x-core::table.header.cell>
+                <x-core::table.header.cell class="text-center">
+                    {{ __('Total') }}
+                </x-core::table.header.cell>
+            </x-core::table.header>
+            <x-core::table.body>
+                @foreach ($booking->foods->unique() as $food)
+                    <x-core::table.body.row>
+                        <x-core::table.body.cell style="vertical-align: middle !important;">
+                            {{ $food->name }}
+                        </x-core::table.body.cell>
+                        <x-core::table.body.cell class="text-center">
+                            {{ format_price($food->price) }}
+                        </x-core::table.body.cell>
+                        <x-core::table.body.cell class="text-center">
+                            {{ format_price($food->price   ) }}
+                        </x-core::table.body.cell>
+                    </x-core::table.body.row>
+                @endforeach
+            </x-core::table.body>
+        </x-core::table>
+        <br>
+    @endif
+
     <x-core::datagrid>
         <x-core::datagrid.item :title="__('Sub Total')">
             {{ format_price($booking->sub_total) }}

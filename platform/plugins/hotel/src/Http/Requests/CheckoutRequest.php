@@ -36,10 +36,11 @@ class CheckoutRequest extends Request
             'country' => ['nullable', 'string', 'max:60'],
             'requests' => ['nullable', 'string', 'max:10000'],
             'services' => ['nullable', 'array'],
+            'foods' => ['nullable', 'array'],
             'terms_conditions' => ['accepted:1'],
             'register_customer' => ['nullable'],
             'password' => ['nullable', 'required_if:register_customer,1', 'min:6'],
-            'password_confirm' => ['nullable', 'required_if:register_customer,1', 'same:password'],
+            'password_confirmation' => ['nullable', 'required_if:register_customer,1', 'same:password'],
         ];
     }
 }

@@ -23,9 +23,8 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="banner-content text-center">
-                    <h1 class="title" data-animation="fadeInLeft" data-delay=".9s">{!! $tag['description'] !!}</h1>
                         <span class="promo-tag" data-animation="fadeInDown" data-delay=".6s">{{ $tag['title'] }}</span>
-                        
+                        <h1 class="title" data-animation="fadeInLeft" data-delay=".9s">{!! $tag['description'] !!}</h1>
                         <ul>
                             @if ($tag['primary_slider_button_url'] && $tag['primary_button_text'])
                                 <li data-animation="fadeInUp" data-delay="1.1s">
@@ -42,16 +41,7 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Background Video Section -->
-        <!-- <div class="banner-bg" style="position: relative; z-index: 9999;">
-            <video autoplay loop muted style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
-                <source src="{{ asset('bg-hero.mp4') }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-
-        <div class="banner-overly" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 9998;"></div> -->
+        <div class="banner-bg" style="background-image: url({{ RvMedia::getImageUrl($tag['image']) }});"></div>
+        <div class="banner-overly"></div>
     </div>
 @endforeach
-

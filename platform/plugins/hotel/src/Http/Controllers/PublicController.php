@@ -5,6 +5,7 @@ namespace Botble\Hotel\Http\Controllers;
 use Botble\Base\Facades\BaseHelper;
 use Botble\Base\Facades\Html;
 use Botble\Base\Http\Responses\BaseHttpResponse;
+use Botble\Hotel\DataTransferObjects\RoomSearchParams;
 use Botble\Hotel\Enums\BookingStatusEnum;
 use Botble\Hotel\Enums\ReviewStatusEnum;
 use Botble\Hotel\Enums\ServicePriceTypeEnum;
@@ -22,8 +23,8 @@ use Botble\Hotel\Models\Place;
 use Botble\Hotel\Models\Room;
 use Botble\Hotel\Models\RoomCategory;
 use Botble\Hotel\Models\Service;
-use Botble\Hotel\Repositories\Interfaces\RoomInterface;
 use Botble\Hotel\Services\CouponService;
+use Botble\Hotel\Services\GetRoomService;
 use Botble\Media\Facades\RvMedia;
 use Botble\Optimize\Facades\OptimizerHelper;
 use Botble\Payment\Enums\PaymentMethodEnum;
@@ -44,86 +45,23 @@ use Illuminate\Support\Str;
 
 class PublicController extends Controller
 {
-    public function getRooms(Request $request, RoomInterface $roomRepository, BaseHttpResponse $response)
+    public function __construct(
+        protected GetRoomService $getRoomService
+    ) {
+    }
+
+    public function getRooms(Request $request, BaseHttpResponse $response)
     {
         SeoHelper::setTitle(__('Rooms'));
 
         Theme::breadcrumb()->add(__('Rooms'), route('public.rooms'));
 
-        $requestQuery = HotelHelper::getRoomFilters($request);
-
         if ($request->ajax() && $request->wantsJson()) {
-            [$startDate, $endDate, $adults, $nights, $children, $rooms] = HotelHelper::getRoomBookingParams();
+            $params = RoomSearchParams::fromRequest($request->input());
 
-            $condition = [
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-                'adults' => $adults,
-                'children' => $children,
-                'rooms' => $rooms,
-            ];
-
-            $filters = [
-                'keyword' => $requestQuery['keyword'],
-            ];
-
-            $params = [
-                'paginate' => [
-                    'per_page' => $requestQuery['per_page'],
-                    'current_paged' => $requestQuery['page'],
-                ],
-                'with' => [
-                    'amenities',
-                    'amenities.metadata',
-                    'slugable',
-                    'activeBookingRooms' => function ($query) use ($startDate, $endDate) {
-                        return $query
-                            ->whereNot('status', BookingStatusEnum::CANCELLED)
-                            ->where(function ($query) use ($endDate, $startDate) {
-                                return $query
-                                    ->where(function ($query) use ($startDate, $endDate) {
-                                        return $query
-                                            ->whereDate('start_date', '>=', $startDate)
-                                            ->whereDate('start_date', '<=', $endDate);
-                                    })
-                                    ->orWhere(function ($query) use ($startDate, $endDate) {
-                                        return $query
-                                            ->whereDate('end_date', '>=', $startDate)
-                                            ->whereDate('end_date', '<=', $endDate);
-                                    })
-                                    ->orWhere(function ($query) use ($startDate, $endDate) {
-                                        return $query
-                                            ->whereDate('start_date', '<=', $startDate)
-                                            ->whereDate('end_date', '>=', $endDate);
-                                    })
-                                    ->orWhere(function ($query) use ($startDate, $endDate) {
-                                        return $query
-                                            ->whereDate('start_date', '>=', $startDate)
-                                            ->whereDate('end_date', '<=', $endDate);
-                                    });
-                            });
-                    },
-                    'activeRoomDates' => function ($query) use ($startDate, $endDate) {
-                        return $query
-                            ->whereDate('start_date', '>=', $startDate)
-                            ->whereDate('end_date', '<=', $endDate)
-                            ->take(42);
-                    },
-                ],
-            ];
-
-            $allRooms = $roomRepository->getRooms($filters, $params);
-
-            $rooms = [];
-            foreach ($allRooms as $allRoom) {
-                if ($allRoom->isAvailableAt($condition)) {
-                    $allRoom->total_price = $allRoom->getRoomTotalPrice($startDate, $endDate);
-                    $rooms[] = $allRoom;
-                }
-            }
+            $rooms = $this->getRoomService->getAvailableRooms($params);
 
             $data = null;
-
             foreach ($rooms as $room) {
                 $data = view(
                     Theme::getThemeNamespace('views.hotel.includes.room-item'),
@@ -137,7 +75,7 @@ class PublicController extends Controller
         return Theme::scope('hotel.rooms')->render();
     }
 
-    public function getRoom(string $key, RoomInterface $roomRepository)
+    public function getRoom(string $key)
     {
         $slug = SlugHelper::getSlug($key, SlugHelper::getPrefix(Room::class));
 
@@ -192,7 +130,7 @@ class PublicController extends Controller
             'adults' => $adults,
         ];
 
-        $relatedRooms = $roomRepository->getRelatedRooms(
+        $relatedRooms = $this->getRoomService->getRelatedRooms(
             $room->getKey(),
             (int) theme_option('number_of_related_rooms', 2),
             [
@@ -448,7 +386,14 @@ class PublicController extends Controller
             ->wherePublished()
             ->get();
 
+        $isEnabledFoodOrder = HotelHelper::isEnableFoodOrder();
+
+        $foods = $isEnabledFoodOrder ? Food::query()
+            ->wherePublished()
+            ->get() : collect();
+
         $selectedServices = Arr::get($sessionData, 'selected_services', []);
+        $selectedFoods = $isEnabledFoodOrder ? Arr::get($sessionData, 'selected_foods', []) : [];
 
         return Theme::scope(
             'hotel.booking',
@@ -466,6 +411,8 @@ class PublicController extends Controller
                 'token',
                 'customer',
                 'selectedServices',
+                'selectedFoods',
+                'foods',
                 'couponCode',
                 'couponAmount',
             )
@@ -523,8 +470,9 @@ class PublicController extends Controller
         $room->total_price = $room->getRoomTotalPrice($startDate, $endDate, $numberOfRooms);
 
         $serviceIds = $request->input('services', []);
+        $foodIds = HotelHelper::isEnableFoodOrder() ? $request->input('foods', []) : [];
 
-        [$amount, $discountAmount] = $this->calculateBookingAmount($room, $serviceIds, $startDate->diffInDays($endDate), $numberOfRooms);
+        [$amount, $discountAmount] = $this->calculateBookingAmount($room, $serviceIds, $startDate->diffInDays($endDate), $numberOfRooms, $foodIds);
 
         $taxAmount = $room->tax->percentage * ($amount - $discountAmount) / 100;
 
@@ -546,6 +494,10 @@ class PublicController extends Controller
 
         if ($serviceIds) {
             $booking->services()->attach($serviceIds);
+        }
+
+        if ($foodIds) {
+            $booking->foods()->attach($foodIds);
         }
 
         session()->put('booking_transaction_id', $booking->transaction_id);
@@ -671,7 +623,7 @@ class PublicController extends Controller
 
         $room->total_price = $room->getRoomTotalPrice($startDate, $endDate, $numberOfRooms);
 
-        [$amount, $discountAmount] = $this->calculateBookingAmount($room, $request->input('services', []), $nights, $numberOfRooms);
+        [$amount, $discountAmount] = $this->calculateBookingAmount($room, $request->input('services', []), $nights, $numberOfRooms, $request->input('foods', []));
 
         $taxAmount = $room->tax->percentage * ($amount - $discountAmount) / 100;
 
@@ -767,7 +719,7 @@ class PublicController extends Controller
         return Theme::scope('hotel.food', compact('food'))->render();
     }
 
-    protected function calculateBookingAmount(Room $room, array $servicesIds = [], $nights = 1, int $numberOfRooms = 1): array
+    protected function calculateBookingAmount(Room $room, array $servicesIds = [], $nights = 1, int $numberOfRooms = 1, array $foods = []): array
     {
         $amount = $room->total_price;
 
@@ -794,17 +746,37 @@ class PublicController extends Controller
             $selectedServices = $services->pluck('id')->values()->all();
         }
 
+        $foodAmount = 0;
+        $foodsSelected = [];
+
+        if ($foods) {
+            $foods = Food::query()
+                ->whereIn('id', $foods)
+                ->get();
+
+            foreach ($foods as $food) {
+                $foodAmount += $food->price;
+            }
+
+            $amount += $foodAmount;
+
+            $foodsSelected = $foods->pluck('id')->values()->all();
+        }
+
         $sessionData = HotelHelper::getCheckoutData();
 
         $sessionData['service_amount'] = $serviceAmount;
         $sessionData['selected_services'] = $selectedServices;
+
+        $sessionData['food_amount'] = $foodAmount;
+        $sessionData['selected_foods'] = $foodsSelected;
 
         $couponCode = Arr::get($sessionData, 'coupon_code');
 
         $discountAmount = 0;
 
         if ($couponCode) {
-            $couponService = new CouponService;
+            $couponService = new CouponService();
 
             $coupon = $couponService->getCouponByCode($couponCode);
 
