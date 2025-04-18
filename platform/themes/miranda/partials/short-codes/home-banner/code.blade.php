@@ -48,6 +48,6 @@
     </video>
 </div> -->
         <!-- <div class="banner-bg" style="background-image: url({{ RvMedia::getImageUrl($tag['image']) }});"></div> -->
-        <div class="banner-overly"></div>
+        <!-- <div class="banner-overly"></div> -->
     </div>
 @endforeach
